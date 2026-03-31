@@ -7,7 +7,7 @@ import { insertLead } from '@/lib/leadMutations'
 const EMPTY = {
   name:          '',
   contact:       '',
-  status:        'new',
+  status:        'new lead',
   deal_value:    '',
   interval_days: '1',
   priority:      'medium',

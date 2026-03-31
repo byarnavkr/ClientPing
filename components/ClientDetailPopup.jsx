@@ -9,12 +9,10 @@ import AvatarInitials from '@/components/AvatarInitials'
 import ContactLink from '@/components/ContactLink'
 
 const STATUSES = [
-  { value: 'new',       label: 'New' },
-  { value: 'contacted', label: 'Contacted' },
-  { value: 'qualified', label: 'Qualified' },
-  { value: 'proposal',  label: 'Proposal Sent' },
-  { value: 'closed',    label: 'Closed Won' },
-  { value: 'lost',      label: 'Lost' },
+  { value: 'new lead',       label: 'New lead' },
+  { value: 'interested ', label: 'interested ' },
+  { value: 'client', label: 'client' },
+  { value: 'lost',  label: 'lost' },
 ]
 
 function formatCurrency(val) {
