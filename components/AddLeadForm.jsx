@@ -101,9 +101,15 @@ export default function AddLeadForm({ onClose }) {
                 name="status" value={fields.status} onChange={handle}
                 className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900/10 bg-white transition-all"
               >
-                {['new','contacted','qualified','proposal','closed','lost'].map(s => (
-                  <option key={s} value={s}>{s}</option>
+                {[
+                  { value: 'new lead',   label: 'New Lead' },
+                  { value: 'interested', label: 'Interested' },
+                  { value: 'client',     label: 'Client' },
+                  { value: 'lost',       label: 'Lost' },
+                ].map(s => (
+                  <option key={s.value} value={s.value}>{s.label}</option>
                 ))}
+
               </select>
             </div>
 
