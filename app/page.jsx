@@ -5,53 +5,43 @@ import { useLeads } from '@/hooks/useLeads'
 import { createClient } from '@/lib/supabase/client'
 import { updateLead } from '@/lib/leadMutations'
 import { calcNextFollowUp } from '@/lib/intervalUtils'
-
 import MobileHeader from '@/components/MobileHeader'
 import MainHeader from '@/components/MainHeader'
 import FollowUpSidebar from '@/components/FollowUpSidebar'
 import MobileSidebarDrawer from '@/components/MobileSidebarDrawer'
 import BottomNav from '@/components/BottomNav'
-
 import LeadsTabBar from '@/components/LeadsTabBar'
 import LeadsTable from '@/components/LeadsTable'
 import AddLeadForm from '@/components/AddLeadForm'
 import ClientDetailPopup from '@/components/ClientDetailPopup'
 
 export default function Page() {
-  // ─── UI State ───────────────────────────────────────────────
   const [search, setSearch]             = useState('')
   const [showAdd, setShowAdd]           = useState(false)
   const [activeTab, setActiveTab]       = useState('all')
   const [selectedLead, setSelectedLead] = useState(null)
+  const [drawerOpen, setDrawerOpen]     = useState(false)
+  const [mobileView, setMobileView]     = useState('leads')
+  const { leads, loading, error }       = useLeads()
 
-  // Mobile-specific state
-  const [drawerOpen, setDrawerOpen] = useState(false)
-  const [mobileTab, setMobileTab]   = useState('leads')
-
-  // Data
-  const { leads, loading, error } = useLeads()
-
-  // ─── Auth ───────────────────────────────────────────────────
   async function handleSignOut() {
     const supabase = createClient()
     await supabase.auth.signOut()
     window.location.href = '/login'
   }
 
-  // ─── Follow-up logic ────────────────────────────────────────
   async function handleMarkDone(lead) {
     const nextDate = calcNextFollowUp(lead.interval_days)
     await updateLead(lead.id, { follow_up_date: nextDate })
   }
 
-  // ─── Filtering ──────────────────────────────────────────────
   const filteredLeads = useMemo(() => {
     let result = leads
 
     if (activeTab === 'active') {
-      result = result.filter(l => !['closed', 'lost'].includes(l.status))
+      result = result.filter(l => l.status !== 'lost')
     } else if (activeTab === 'closed') {
-      result = result.filter(l => l.status === 'closed')
+      result = result.filter(l => l.status === 'client')
     }
 
     if (search.trim()) {
@@ -66,13 +56,12 @@ export default function Page() {
   }, [leads, activeTab, search])
 
   return (
-    <div className="flex h-screen bg-[#F9FAFB] text-gray-900 overflow-hidden">
+    <div className="flex h-screen bg-[#F9FAFB] text-gray-900 overflow-hidden selection:bg-gray-900 selection:text-white">
 
-      {/* ───── Modals ───── */}
+      {/* ── Modals / popups ── */}
       {showAdd && (
         <AddLeadForm onClose={() => setShowAdd(false)} />
       )}
-
       {selectedLead && (
         <ClientDetailPopup
           lead={selectedLead}
@@ -81,21 +70,21 @@ export default function Page() {
         />
       )}
 
-      {/* ───── Mobile Header ───── */}
+      {/* ── Mobile top header (hamburger + logo) ── */}
       <MobileHeader onMenuClick={() => setDrawerOpen(true)} />
 
-      {/* ───── Mobile Sidebar Drawer ───── */}
+      {/* ── Mobile follow-up drawer (slides in from left) ── */}
       <MobileSidebarDrawer
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
         leads={leads}
-        onNewLead={() => setShowAdd(true)}
+        onNewLead={() => { setShowAdd(true); setDrawerOpen(false) }}
         onSignOut={handleSignOut}
-        onSelectLead={setSelectedLead}
+        onSelectLead={(lead) => { setSelectedLead(lead); setDrawerOpen(false) }}
         onMarkDone={handleMarkDone}
       />
 
-      {/* ───── Desktop Sidebar ───── */}
+      {/* ── Desktop sidebar (always visible ≥ md) ── */}
       <FollowUpSidebar
         leads={leads}
         onNewLead={() => setShowAdd(true)}
@@ -104,30 +93,31 @@ export default function Page() {
         onMarkDone={handleMarkDone}
       />
 
-      {/* ───── Main Content ───── */}
-      <main className="flex-1 flex flex-col h-full overflow-hidden">
+      {/* ── Main content area ── */}
+      <main className="flex-1 flex flex-col h-full overflow-hidden bg-[#F9FAFB]">
 
-        {/* Desktop Header */}
-        <div className="hidden md:block">
-          <MainHeader
-            onNewLead={() => setShowAdd(true)}
-            onSearch={setSearch}
-            searchValue={search}
-          />
-        </div>
+        {/* Desktop header (hidden on mobile) */}
+        <MainHeader
+          onNewLead={() => setShowAdd(true)}
+          onSearch={setSearch}
+          searchValue={search}
+        />
 
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto px-4 md:px-8 pb-24 md:pb-8">
+        <div className="flex-1 overflow-y-auto px-4 md:px-8 pb-8 pt-0">
 
-          {/* Desktop Tabs */}
-          <div className="hidden md:block">
-            <LeadsTabBar
-              active={activeTab}
-              onChange={setActiveTab}
+          {/* Mobile search bar (hidden on desktop) */}
+          <div className="md:hidden pt-4 pb-2">
+            <input
+              type="text"
+              placeholder="Search leads..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gray-900/10 shadow-sm placeholder:text-gray-400"
             />
           </div>
 
-          {/* Leads */}
+          <LeadsTabBar active={activeTab} onChange={setActiveTab} />
+
           <LeadsTable
             leads={filteredLeads}
             loading={loading}
@@ -138,12 +128,12 @@ export default function Page() {
         </div>
       </main>
 
-      {/* ───── Bottom Navigation (Mobile Only) ───── */}
+      {/* ── Mobile bottom nav (hidden on desktop) ── */}
       <BottomNav
-        activeTab={mobileTab}
-        onLeads={() => setMobileTab('leads')}
+        activeTab={mobileView}
+        onLeads={() => setMobileView('leads')}
         onFollowUps={() => {
-          setMobileTab('followups')
+          setMobileView('followups')
           setDrawerOpen(true)
         }}
         onAdd={() => setShowAdd(true)}
