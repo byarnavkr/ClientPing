@@ -52,8 +52,8 @@ export default function AddLeadForm({ onClose }) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden">
+    <div className="bg-black/40 backdrop-blur-sm z-50 flex md:items-center md:justify-center md:p-4 items-end">
+      <div className="bg-white rounded-t-2xl w-full md:max-w-lg shadow-2xl overflow-hidden animate-slide-up md:animate-none">        
 
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
@@ -167,6 +167,27 @@ export default function AddLeadForm({ onClose }) {
                   >▼</button>
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* Priority */}
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1.5">Priority</label>
+            <div className="flex gap-2">
+              {[
+                { key: 'high',   icon: 'arrow-up',   active: 'border-red-200 bg-red-50 text-red-700',     inactive: 'border-gray-200 bg-white text-gray-500' },
+                { key: 'medium', icon: 'minus',      active: 'border-amber-200 bg-amber-50 text-amber-700', inactive: 'border-gray-200 bg-white text-gray-500' },
+                { key: 'low',    icon: 'arrow-down', active: 'border-emerald-200 bg-emerald-50 text-emerald-700', inactive: 'border-gray-200 bg-white text-gray-500' },
+              ].map(({ key, icon, active, inactive }) => (
+                <button
+                  key={key} type="button"
+                  onClick={() => setFields(p => ({ ...p, priority: key }))}
+                  className={`flex-1 py-2 rounded-lg text-xs font-medium border-2 transition-all capitalize ${fields.priority === key ? active : inactive}`}
+                >
+                  <FontAwesomeIcon icon={icon} className="text-[10px] mr-1" />
+                  {key.charAt(0).toUpperCase() + key.slice(1)}
+                </button>
+              ))}
             </div>
           </div>
 

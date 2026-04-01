@@ -9,12 +9,10 @@ import AvatarInitials from '@/components/AvatarInitials'
 import ContactLink from '@/components/ContactLink'
 
 const STATUSES = [
-  { value: 'new',       label: 'New' },
-  { value: 'contacted', label: 'Contacted' },
-  { value: 'qualified', label: 'Qualified' },
-  { value: 'proposal',  label: 'Proposal Sent' },
-  { value: 'closed',    label: 'Closed Won' },
-  { value: 'lost',      label: 'Lost' },
+  { value: 'new lead',       label: 'New lead' },
+  { value: 'interested ', label: 'interested ' },
+  { value: 'client', label: 'client' },
+  { value: 'lost',  label: 'lost' },
 ]
 
 function formatCurrency(val) {
@@ -88,11 +86,18 @@ export default function ClientDetailPopup({ lead, onClose, onSaved }) {
     : 'text-gray-600'
 
   return (
+
     <div
-      className={`fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 transition-opacity duration-200 ${visible ? 'opacity-100' : 'opacity-0'}`}
+      className={`fixed inset-0 z-50 flex md:items-center md:justify-center bg-black/40 backdrop-blur-sm p-4 transition-opacity duration-200 ${
+        visible ? 'opacity-100' : 'opacity-0'
+      }`}
       onClick={e => e.target === e.currentTarget && handleClose()}
     >
-      <div className={`bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col transform transition-all duration-200 ${visible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}>
+      <div
+        className={`bg-white w-full h-full md:h-auto md:max-w-2xl lg:max-w-3xl md:rounded-xl p-6 max-h-[90vh] overflow-y-auto flex flex-col transform transition-all duration-200 ${
+          visible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
+        }`}
+      >
 
         {/* ── Header ── */}
         <div className="px-8 py-6 border-b border-gray-100 flex items-start justify-between bg-gradient-to-r from-gray-50 to-white flex-shrink-0">

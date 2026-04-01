@@ -14,3 +14,16 @@ html, body {
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+@keyframes slide-up {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* Safe area padding for devices with home indicators */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
