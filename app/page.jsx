@@ -37,13 +37,11 @@ export default function Page() {
 
   const filteredLeads = useMemo(() => {
     let result = leads
-
     if (activeTab === 'active') {
       result = result.filter(l => l.status !== 'lost')
     } else if (activeTab === 'closed') {
       result = result.filter(l => l.status === 'client')
     }
-
     if (search.trim()) {
       const q = search.toLowerCase()
       result = result.filter(l =>
@@ -51,17 +49,13 @@ export default function Page() {
         l.contact?.toLowerCase().includes(q)
       )
     }
-
     return result
   }, [leads, activeTab, search])
 
   return (
-    <div className="flex h-screen bg-[#F9FAFB] text-gray-900 overflow-hidden selection:bg-gray-900 selection:text-white">
-
-      {/* ── Modals / popups ── */}
-      {showAdd && (
-        <AddLeadForm onClose={() => setShowAdd(false)} />
-      )}
+    <>
+      {/* ── Modals — rendered outside layout so they always overlay correctly ── */}
+      {showAdd && <AddLeadForm onClose={() => setShowAdd(false)} />}
       {selectedLead && (
         <ClientDetailPopup
           lead={selectedLead}
@@ -70,10 +64,7 @@ export default function Page() {
         />
       )}
 
-      {/* ── Mobile top header (hamburger + logo) ── */}
-      <MobileHeader onMenuClick={() => setDrawerOpen(true)} />
-
-      {/* ── Mobile follow-up drawer (slides in from left) ── */}
+      {/* ── Mobile follow-up drawer ── */}
       <MobileSidebarDrawer
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
@@ -84,61 +75,79 @@ export default function Page() {
         onMarkDone={handleMarkDone}
       />
 
-      {/* ── Desktop sidebar (always visible ≥ md) ── */}
-      <FollowUpSidebar
-        leads={leads}
-        onNewLead={() => setShowAdd(true)}
-        onSignOut={handleSignOut}
-        onSelectLead={setSelectedLead}
-        onMarkDone={handleMarkDone}
-      />
+      {/* ════════════════════════════════
+           MOBILE layout  (< md)
+           Full-height column: header → content → bottom nav
+          ════════════════════════════════ */}
+      <div className="flex flex-col h-screen md:hidden bg-[#F9FAFB] text-gray-900 overflow-hidden">
 
-      {/* ── Main content area ── */}
-      <main className="flex-1 flex flex-col h-full overflow-hidden bg-[#F9FAFB]">
+        {/* Mobile top bar */}
+        <MobileHeader onMenuClick={() => setDrawerOpen(true)} />
 
-        {/* Desktop header (hidden on mobile) */}
-        <MainHeader
-          onNewLead={() => setShowAdd(true)}
-          onSearch={setSearch}
-          searchValue={search}
-        />
+        {/* Mobile main scrollable area */}
+        <div className="flex-1 overflow-y-auto px-4 pt-4 pb-24">
+          {/* Search */}
+          <input
+            type="text"
+            placeholder="Search leads..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="w-full px-4 py-2.5 mb-3 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gray-900/10 shadow-sm placeholder:text-gray-400"
+          />
 
-        <div className="flex-1 overflow-y-auto px-4 md:px-8 pb-8 pt-0">
-
-          {/* Mobile search bar (hidden on desktop) */}
-          <div className="md:hidden pt-4 pb-2">
-            <input
-              type="text"
-              placeholder="Search leads..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gray-900/10 shadow-sm placeholder:text-gray-400"
-            />
-          </div>
-
+          {/* Tab bar + table */}
           <LeadsTabBar active={activeTab} onChange={setActiveTab} />
-
           <LeadsTable
             leads={filteredLeads}
             loading={loading}
             error={error}
             onSelectLead={setSelectedLead}
           />
-
         </div>
-      </main>
 
-      {/* ── Mobile bottom nav (hidden on desktop) ── */}
-      <BottomNav
-        activeTab={mobileView}
-        onLeads={() => setMobileView('leads')}
-        onFollowUps={() => {
-          setMobileView('followups')
-          setDrawerOpen(true)
-        }}
-        onAdd={() => setShowAdd(true)}
-      />
+        {/* Bottom nav */}
+        <BottomNav
+          activeTab={mobileView}
+          onLeads={() => setMobileView('leads')}
+          onFollowUps={() => { setMobileView('followups'); setDrawerOpen(true) }}
+          onAdd={() => setShowAdd(true)}
+        />
+      </div>
 
-    </div>
+      {/* ════════════════════════════════
+           DESKTOP layout  (≥ md)
+           Horizontal flex: sidebar | main
+          ════════════════════════════════ */}
+      <div className="hidden md:flex h-screen bg-[#F9FAFB] text-gray-900 overflow-hidden selection:bg-gray-900 selection:text-white">
+
+        {/* Desktop sidebar */}
+        <FollowUpSidebar
+          leads={leads}
+          onNewLead={() => setShowAdd(true)}
+          onSignOut={handleSignOut}
+          onSelectLead={setSelectedLead}
+          onMarkDone={handleMarkDone}
+        />
+
+        {/* Desktop main area */}
+        <main className="flex-1 flex flex-col h-full overflow-hidden bg-[#F9FAFB]">
+          <MainHeader
+            onNewLead={() => setShowAdd(true)}
+            onSearch={setSearch}
+            searchValue={search}
+          />
+          <div className="flex-1 overflow-y-auto px-8 pb-8 pt-0">
+            <LeadsTabBar active={activeTab} onChange={setActiveTab} />
+            <LeadsTable
+              leads={filteredLeads}
+              loading={loading}
+              error={error}
+              onSelectLead={setSelectedLead}
+            />
+          </div>
+        </main>
+
+      </div>
+    </>
   )
 }

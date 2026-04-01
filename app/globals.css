@@ -18,6 +18,10 @@ html, body {
   from { transform: translateY(100%); }
   to   { transform: translateY(0); }
 }
+@keyframes fade-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
 
 .animate-slide-up {
   animation: slide-up 0.28s cubic-bezier(0.32, 0.72, 0, 1);
@@ -26,4 +30,8 @@ html, body {
 /* Safe area padding for devices with home indicators */
 .safe-bottom {
   padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.animate-fade-in {
+  animation: fade-in 0.18s ease-out both;
 }
