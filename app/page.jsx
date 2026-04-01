@@ -1,5 +1,6 @@
 'use client'
 
+import '@/lib/fontawesome'
 import { useState, useMemo } from 'react'
 import { useLeads } from '@/hooks/useLeads'
 import { createClient } from '@/lib/supabase/client'
